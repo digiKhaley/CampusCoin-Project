@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Campus Coin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a; --surface:#111; --stroke:rgba(255,255,255,.09);
+  --text:#f5f5f0; --muted:#8a8a86; --accent:#34D399;
+  --glass-bg:rgba(255,255,255,.03); --glass-edge:rgba(255,255,255,.35);
+  --cta-fg:#0a0a0a; --cta-bg:#fff; --msg-bg:rgba(255,255,255,.08);
+  --nav-link:rgba(255,255,255,.65); --ai-bg:rgba(52,211,153,.14); --ai-text:#d6fbe6;
+  --gcard-text:rgba(255,255,255,.75); --placeholder:rgba(255,255,255,.35);
+  --warn:#e2a64f; --bad:#e08076; --good:#34D399; --panel:#111;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#F7F6F2; --surface:#fff; --stroke:rgba(10,10,10,.09);
+    --text:#12140f; --muted:#6b6b64; --accent:#0e9a63;
+    --glass-bg:rgba(10,10,10,.03); --glass-edge:rgba(10,10,10,.18);
+    --cta-fg:#fff; --cta-bg:#12140f; --msg-bg:rgba(10,10,10,.06);
+    --nav-link:rgba(10,10,10,.6); --ai-bg:rgba(14,154,99,.12); --ai-text:#0b3d27;
+    --gcard-text:rgba(10,10,10,.65); --placeholder:rgba(10,10,10,.4);
+    --warn:#c9862b; --bad:#b4463c; --good:#0e9a63; --panel:#fff;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#F7F6F2; --surface:#fff; --stroke:rgba(10,10,10,.09);
+  --text:#12140f; --muted:#6b6b64; --accent:#0e9a63;
+  --glass-bg:rgba(10,10,10,.03); --glass-edge:rgba(10,10,10,.18);
+  --cta-fg:#fff; --cta-bg:#12140f; --msg-bg:rgba(10,10,10,.06);
+  --nav-link:rgba(10,10,10,.6); --ai-bg:rgba(14,154,99,.12); --ai-text:#0b3d27;
+  --gcard-text:rgba(10,10,10,.65); --placeholder:rgba(10,10,10,.4);
+  --warn:#c9862b; --bad:#b4463c; --good:#0e9a63; --panel:#fff;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,sans-serif;overflow-x:hidden;}
+.serif{font-family:"Instrument Serif",serif; font-style:italic;}
+body,.pill,.bcard,.gcard,.msg,.bar,.composer{transition:background-color .3s ease,color .3s ease,border-color .3s ease;}
+.glass{background:var(--glass-bg);border:1px solid var(--stroke);backdrop-filter:blur(10px);position:relative;}
+.glass::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,var(--glass-edge),rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,var(--glass-edge));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
+.theme-toggle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:16px;border:1px solid var(--stroke);background:transparent;color:var(--text);flex-shrink:0;}
+.theme-toggle svg{width:15px;height:15px;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px;}
+.fade{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.fade.show{opacity:1;transform:translateY(0);}
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--stroke);border-radius:4px;}
+@media (prefers-reduced-motion: reduce){*{transition-duration:.001ms !important;animation-duration:.001ms !important;}}
+
+/* NAV */
+nav{position:sticky;top:16px;z-index:30;padding:0 16px;}
+.pill{max-width:660px;margin:0 auto;border-radius:999px;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+.pill .brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;cursor:pointer;}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accent);}
+.pill a{color:var(--nav-link);text-decoration:none;font-size:13px;margin-left:22px;cursor:pointer;}
+.pill a:hover{color:var(--text);}
+.pill .cta{background:var(--cta-bg);color:var(--cta-fg);padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600;margin-left:22px;border:none;cursor:pointer;font-family:inherit;}
+
+/* HERO */
+.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 40px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 8%, rgba(52,211,153,.18), transparent 62%);z-index:-2;}
+
+.hero h1{font-size:clamp(2.6rem,7vw,5.2rem);line-height:1.02;margin:0;letter-spacing:-.02em;font-weight:600;min-height:2.1em;}
+.hero h1 .cursor{display:inline-block;width:2px;background:var(--accent);margin-left:2px;animation:blink 1s step-end infinite;vertical-align:baseline;}
+@keyframes blink{50%{opacity:0;}}
+.hero p{color:var(--muted);max-width:480px;margin:22px auto 0;font-size:16px;line-height:1.6;}
+.hero .cta-row{margin-top:34px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-solid{background:var(--accent);color:#06110c;padding:13px 24px;border-radius:999px;font-weight:600;font-size:14px;border:none;box-shadow:0 0 40px rgba(52,211,153,.25);cursor:pointer;font-family:inherit;}
+.btn-glass{padding:13px 24px;border-radius:999px;font-weight:600;font-size:14px;color:var(--text);border:none;cursor:pointer;font-family:inherit;}
+
+/* BENTO */
+.section-label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px;}
+.section-head{font-size:clamp(1.6rem,3.8vw,2.4rem);margin:0 0 40px;letter-spacing:-.01em;}
+.bento{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+.bcard{border-radius:20px;padding:26px;transition:transform .3s ease;}
+.bcard:hover{transform:translateY(-4px);}
+.bcard.wide{grid-column:span 2;}
+.bcard h3{margin:0 0 8px;font-size:17px;}
+.bcard p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6;}
+
+/* GALLERY */
+.gallery{padding:100px 0;}
+.grid-scatter{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.gcard{aspect-ratio:3/4;border-radius:16px;opacity:0;transform:scale(.7);transition:opacity .6s ease,transform .6s ease;display:flex;align-items:flex-end;padding:14px;font-size:12px;color:var(--gcard-text);cursor:pointer;}
+.gcard.show{opacity:1;transform:scale(1);}
+.gcard:nth-child(3n+1){margin-top:26px;}
+.gcard:nth-child(4n+2){margin-top:-14px;}
+@media (max-width:640px){.grid-scatter{grid-template-columns:repeat(2,1fr);} .bcard.wide{grid-column:span 2;}}
+
+/* AI COMPOSER */
+.composer-section{padding:60px 0 120px;text-align:center;}
+.composer{max-width:640px;margin:0 auto;border-radius:22px;padding:22px;text-align:left;}
+.msg{max-width:78%;padding:10px 14px;border-radius:14px;font-size:13.5px;margin-bottom:10px;line-height:1.5;}
+.msg.user{background:var(--msg-bg);margin-left:auto;border-radius:14px 14px 4px 14px;}
+.msg.ai{background:var(--ai-bg);color:var(--ai-text);border-radius:14px 14px 14px 4px;}
+.bar{margin-top:16px;display:flex;align-items:center;gap:10px;border-radius:999px;padding:10px 8px 10px 18px;}
+.bar span{color:var(--placeholder);font-size:13px;flex:1;}
+.send{width:34px;height:34px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+/* SITEMAP */
+.sitemap{padding:100px 0;}
+.smap-tree{display:flex;flex-direction:column;align-items:center;gap:0;}
+.smap-root{padding:12px 26px;border-radius:12px;font-size:14px;font-weight:600;}
+.smap-stem{width:1px;height:28px;background:var(--stroke);}
+.smap-row{display:flex;gap:36px;position:relative;padding-top:28px;flex-wrap:wrap;justify-content:center;}
+.smap-row::before{content:'';position:absolute;top:0;left:50%;right:50%;height:1px;background:var(--stroke);}
+.smap-branch{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;}
+.smap-branch::before{content:'';position:absolute;top:-28px;left:50%;width:1px;height:28px;background:var(--stroke);}
+.smap-node{padding:10px 18px;border-radius:10px;font-size:13px;white-space:nowrap;}
+.smap-leaf{color:var(--muted);font-size:11.5px;text-align:center;line-height:1.7;}
+@media (max-width:820px){.smap-row::before{display:none;}.smap-branch::before{display:none;}}
+
+footer{border-top:1px solid var(--stroke);padding:34px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:12px;}
+
+/* ===== VIEW SWITCHING (landing / auth / app) ===== */
+#view-landing{display:block;}
+.view-overlay{position:fixed;inset:0;z-index:100;opacity:0;pointer-events:none;transition:opacity .45s cubic-bezier(.16,1,.3,1);overflow-y:auto;background:var(--bg);}
+.view-overlay.active{opacity:1;pointer-events:auto;}
+
+/* ===== AUTH ===== */
+#view-auth{display:flex;align-items:center;justify-content:center;}
+.auth-illustration{position:absolute;inset:0;overflow:hidden;}
+.auth-illustration svg{position:absolute;inset:0;width:100%;height:100%;}
+.auth-illustration::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, transparent 0%, var(--bg) 85%);}
+.auth-card{width:380px;padding:36px;border-radius:20px;position:relative;z-index:2;}
+.auth-tabs{display:flex;gap:5px;margin-bottom:22px;background:var(--msg-bg);border-radius:10px;padding:4px;}
+.auth-tab{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--muted);}
+.auth-tab.active{background:var(--accent);color:var(--cta-fg);font-weight:600;}
+.field{margin-bottom:14px;}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;}
+input,select{width:100%;padding:10px 13px;border-radius:9px;border:1px solid var(--stroke);background:var(--panel);color:var(--text);font-size:13.5px;font-family:inherit;}
+input:focus,select:focus{outline:1px solid var(--accent);}
+.back-link{position:fixed;top:26px;left:26px;font-size:13px;color:var(--muted);cursor:pointer;z-index:5;}
+.back-link:hover{color:var(--text);}
+
+/* ===== APP ===== */
+#view-app{display:flex;}
+.shell{display:flex;width:100%;min-height:100vh;}
+.sidebar{width:220px;flex-shrink:0;padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+.sb-brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:4px 10px 22px;}
+.navlink{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13.5px;color:var(--muted);cursor:pointer;margin-bottom:3px;transition:background-color .2s ease,color .2s ease;}
+.navlink:hover{background:var(--msg-bg);color:var(--text);}
+.navlink.active{background:var(--accent);color:var(--cta-fg);font-weight:600;}
+.navlink .ic{width:16px;text-align:center;font-size:13px;}
+.sb-bottom{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 10px 4px;border-top:1px solid var(--stroke);}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--cta-fg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.main{flex:1;padding:24px 34px 60px;}
+.crumb{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.topbar h1{font-size:21px;margin:0;letter-spacing:-.01em;}
+
+.card{border-radius:16px;padding:20px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.stat-label{font-size:12px;color:var(--muted);margin:0 0 4px;}
+.stat-val{font-size:21px;font-weight:600;margin:0;}
+.track{height:6px;background:var(--bg);border-radius:5px;overflow:hidden;}
+.fill{height:100%;border-radius:5px;transition:width .6s ease;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--stroke);}
+td{padding:11px 10px;border-bottom:1px solid var(--stroke);}
+tr:last-child td{border-bottom:none;}
+.pill-tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+.pill-tag.income{background:rgba(52,211,153,.15);color:var(--good);}
+.pill-tag.expense{background:rgba(224,128,118,.15);color:var(--bad);}
+.section-h{font-size:13.5px;font-weight:600;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;}
+.tag-btn{font-size:11.5px;color:var(--muted);cursor:pointer;border:1px solid var(--stroke);padding:4px 10px;border-radius:999px;background:transparent;font-family:inherit;}
+.tag-btn:hover{color:var(--text);border-color:var(--accent);}
+.ai-chip{display:inline-flex;align-items:center;gap:6px;background:var(--ai-bg);color:var(--ai-text);border-radius:999px;padding:4px 11px;font-size:11.5px;margin-top:8px;}
+.subpage{display:none;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease;}
+.subpage.active{display:block;}
+.subpage.show{opacity:1;transform:translateY(0);}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.cat-chip{padding:6px 13px;border-radius:999px;font-size:12px;display:flex;align-items:center;gap:6px;}
+
+/* health ring */
+.ring-wrap{display:flex;align-items:center;gap:16px;}
+.ring{width:64px;height:64px;flex-shrink:0;}
+.ring circle{fill:none;stroke-width:6;}
+.ring .bg{stroke:var(--bg);}
+.ring .fg{stroke:var(--accent);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1s ease;}
+
+
+/* ===== ADMIN ===== */
+.asub{display:none;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease;}
+.asub.active{display:block;}
+.asub.show{opacity:1;transform:translateY(0);}
+.badge-restricted{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--bad);border:1px solid var(--bad);border-radius:999px;padding:3px 10px;}
+.form-err{color:var(--bad);font-size:12.5px;min-height:18px;margin:-4px 0 12px;}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;z-index:300;padding:11px 18px;border-radius:999px;font-size:13px;pointer-events:none;transition:opacity .3s ease,transform .3s ease;background:var(--panel);}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+.search-row{display:flex;gap:10px;margin-bottom:14px;}
+.note-item{padding:14px 0;border-bottom:1px solid var(--stroke);display:flex;gap:12px;justify-content:space-between;align-items:flex-start;}
+.note-item:last-child{border-bottom:none;}
+.note-item p{margin:6px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55;}
+.bar-row{margin-bottom:12px;}
+.bar-row .lbl{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;}
+textarea{width:100%;padding:10px 13px;border-radius:9px;border:1px solid var(--stroke);background:var(--panel);color:var(--text);font-size:13.5px;font-family:inherit;resize:vertical;min-height:70px;}
+textarea:focus{outline:1px solid var(--accent);}
+
+/* ===== MOBILE ===== */
+@media (max-width:820px){
+  .pill{padding:8px 14px;}
+  .pill a{margin-left:14px;}
+  .pill .cta{margin-left:14px;padding:7px 13px;}
+  .theme-toggle{margin-left:10px;}
+  .hide-m{display:none;}
+  .hero{padding:60px 20px 30px;min-height:86vh;}
+  .hero p{font-size:15px;}
+  .hero .cta-row .btn-solid,.hero .cta-row .btn-glass{flex:1 1 100%;}
+  .bcard.wide{grid-column:auto;}
+  .gallery,#features,.sitemap{padding-top:64px;padding-bottom:64px;}
+  .composer-section{padding-bottom:80px;}
+  .msg{max-width:92%;}
+  .smap-row{gap:22px;}
+
+  .auth-card{width:min(380px,92vw);padding:26px;}
+
+  .shell{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:sticky;top:0;z-index:20;flex-direction:row;align-items:center;gap:4px;padding:10px 12px;overflow-x:auto;border-radius:0;}
+  .sb-brand{display:none;}
+  .navlink{white-space:nowrap;margin-bottom:0;padding:8px 12px;flex-shrink:0;}
+  .sb-bottom{margin:0 0 0 auto;border-top:none;padding:0 0 0 8px;flex-shrink:0;}
+  .sb-bottom > div:nth-child(2) > div:first-child{display:none;}
+  .main{padding:18px 16px 60px;}
+  .grid2,.grid3{grid-template-columns:1fr !important;}
+  .grid4{grid-template-columns:1fr 1fr;}
+  .card{padding:16px;overflow-x:auto;}
+  table{font-size:12.5px;}
+  .stat-val{font-size:19px;}
+}
+@media (max-width:420px){
+  .grid4{grid-template-columns:1fr;}
+  .hero h1{font-size:2.3rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LANDING ============ -->
+<div id="view-landing">
+<nav><div class="pill glass"><div class="brand" onclick="scrollToId('top')"><span class="dot"></span>Campus Coin</div>
+<div style="display:flex;align-items:center;"><a class="hide-m" onclick="scrollToId('features')">Features</a><a class="hide-m" onclick="scrollToId('app')">App</a><a class="hide-m" onclick="scrollToId('ai')">AI</a><a class="hide-m" onclick="scrollToId('sitemap')">Sitemap</a><a onclick="openAuth('login')">Log in</a><button class="cta" onclick="openAuth('register')">Get started</button>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark mode">
+  <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+</div>
+</div></nav>
+
+<section class="hero" id="top">
+  <p class="section-label">Smart spending, student style</p>
+  <h1><span id="typeLine1"></span><br><span class="serif" id="typeLine2"></span></h1>
+  <p>Campus Coin turns your allowance, gig income, and everyday spending into one clear picture — and tells you what to do about it.</p>
+  <div class="cta-row">
+    <button class="btn-solid" onclick="openAuth('register')">Get started free</button>
+    <button class="btn-glass glass" onclick="scrollToId('app')">See how it works</button>
+  </div>
+</section>
+
+<section id="features" style="padding:100px 0;">
+  <div class="wrap">
+    <p class="section-label fade">Features</p>
+    <h2 class="section-head fade">Everything a student budget actually needs</h2>
+    <div class="bento">
+      <div class="bcard wide glass fade"><h3>Financial health score</h3><p>One number that reflects how balanced your spending is this month, updated live as you log transactions.</p></div>
+      <div class="bcard glass fade"><h3>Safe-to-spend</h3><p>Know exactly what's left to spend today without breaking budget.</p></div>
+      <div class="bcard glass fade"><h3>AI assistant</h3><p>Ask about your money in plain language, get a plain-language answer.</p></div>
+      <div class="bcard wide glass fade"><h3>Split expenses</h3><p>Log a shared hostel bill or night out, split it with roommates, and track who owes what.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="app" class="gallery">
+  <div class="wrap">
+    <p class="section-label fade">Inside the app</p>
+    <h2 class="section-head fade">A screen for every part of your budget</h2>
+    <p style="color:var(--muted);font-size:13px;margin:-24px 0 36px;">Click a card to preview that screen.</p>
+    <div class="grid-scatter">
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(52,211,153,.18),transparent);">Dashboard</div>
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(255,255,255,.06),transparent);">Add transaction</div>
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(52,211,153,.1),transparent);">Budgets</div>
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(255,255,255,.05),transparent);">Reports</div>
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(255,255,255,.05),transparent);">Savings jars</div>
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(52,211,153,.14),transparent);">AI insights</div>
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(255,255,255,.06),transparent);">Split bill</div>
+      <div class="gcard glass" onclick="openAuth('login')" style="background:linear-gradient(160deg,rgba(255,255,255,.05),transparent);">Calendar view</div>
+    </div>
+  </div>
+</section>
+
+<section id="ai" class="composer-section">
+  <div class="wrap">
+    <p class="section-label fade">Ask Campus Coin</p>
+    <h2 class="section-head fade">Type it. It'll figure out the rest.</h2>
+    <div class="composer glass fade">
+      <div class="msg user">How much did I spend on food this month?</div>
+      <div class="msg ai" id="ai-msg"></div>
+      <div class="bar glass"><span>Ask about your spending…</span><div class="send"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="sitemap" class="sitemap">
+  <div class="wrap">
+    <p class="section-label fade">Sitemap</p>
+    <h2 class="section-head fade">How the app fits together</h2>
+    <div class="smap-tree fade">
+      <div class="smap-root glass">Landing page</div>
+      <div class="smap-stem"></div>
+      <div class="smap-row">
+        <div class="smap-branch" onclick="openAuth('login')"><div class="smap-node glass">Auth</div><div class="smap-leaf">Register<br>Login<br>Password reset</div></div>
+        <div class="smap-branch" onclick="openAuth('login')"><div class="smap-node glass">Student dashboard</div><div class="smap-leaf">Balance overview<br>Quick add<br>Saving tips</div></div>
+        <div class="smap-branch" onclick="openAuth('login')"><div class="smap-node glass">Transactions</div><div class="smap-leaf">Add / edit<br>CSV import<br>AI categorize</div></div>
+        <div class="smap-branch" onclick="openAuth('login')"><div class="smap-node glass">Budgets</div><div class="smap-leaf">Per-category limits<br>Progress alerts</div></div>
+        <div class="smap-branch" onclick="openAuth('login')"><div class="smap-node glass">Reports</div><div class="smap-leaf">Category breakdown<br>Income vs expense<br>PDF export</div></div>
+        <div class="smap-branch" onclick="openAuth('login')"><div class="smap-node glass">AI insights</div><div class="smap-leaf">Monthly summary<br>Insight history</div></div>
+        <div class="smap-branch"><div class="smap-node glass">Admin panel</div><div class="smap-leaf">Restricted —<br>not publicly linked</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© Campus Coin</span>
+  <span>Built for students</span>
+</footer>
+</div>
+
+<!-- ============ AUTH ============ -->
+<div class="view-overlay" id="view-auth">
+  <span class="back-link" onclick="closeOverlay('auth')">← Back</span>
+  <div class="auth-illustration">
+    <svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="g1" cx="30%" cy="25%" r="55%"><stop offset="0%" stop-color="#34D399" stop-opacity="0.35"/><stop offset="100%" stop-color="#34D399" stop-opacity="0"/></radialGradient>
+        <radialGradient id="g2" cx="75%" cy="70%" r="50%"><stop offset="0%" stop-color="#34D399" stop-opacity="0.22"/><stop offset="100%" stop-color="#34D399" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1200" height="900" fill="url(#g1)"/>
+      <rect width="1200" height="900" fill="url(#g2)"/>
+      <circle cx="220" cy="180" r="70" fill="none" stroke="#34D399" stroke-opacity="0.35" stroke-width="2"/>
+      <circle cx="220" cy="180" r="46" fill="none" stroke="#34D399" stroke-opacity="0.5" stroke-width="2"/>
+      <circle cx="980" cy="700" r="90" fill="none" stroke="#34D399" stroke-opacity="0.3" stroke-width="2"/>
+      <circle cx="980" cy="700" r="60" fill="none" stroke="#34D399" stroke-opacity="0.45" stroke-width="2"/>
+      <circle cx="1050" cy="150" r="34" fill="none" stroke="#34D399" stroke-opacity="0.4" stroke-width="2"/>
+      <polyline points="80,650 260,590 400,630 560,500 720,540 900,380 1120,300" fill="none" stroke="#34D399" stroke-opacity="0.35" stroke-width="2.5"/>
+      <circle cx="1120" cy="300" r="5" fill="#34D399" fill-opacity="0.6"/>
+    </svg>
+  </div>
+  <div class="auth-card glass">
+    <div class="brand" style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:0 0 20px;"><span class="dot"></span>Campus Coin</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Log in</div>
+      <div class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Sign up</div>
+    </div>
+    <div id="loginForm">
+      <div class="field"><label>Email</label><input type="email" value="dave@campuscoin.app"></div>
+      <div class="field"><label>Password</label><input type="password" value="••••••••"></div>
+      <button class="btn-solid" style="width:100%;" onclick="openApp()">Log in</button>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <div class="field"><label>Full name</label><input type="text" placeholder="Ada Lovelace"></div>
+      <div class="field"><label>Email</label><input type="email" placeholder="you@university.edu"></div>
+      <div class="field"><label>Password</label><input type="password" placeholder="At least 8 characters"></div>
+      <button class="btn-solid" style="width:100%;" onclick="openApp()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="view-overlay" id="view-app">
+  <div class="shell">
+    <div class="sidebar glass">
+      <div class="sb-brand"><span class="dot"></span>Campus Coin</div>
+      <div class="navlink active" data-page="dashboard"><span class="ic">◆</span>Dashboard</div>
+      <div class="navlink" data-page="transactions"><span class="ic">≡</span>Transactions</div>
+      <div class="navlink" data-page="budgets"><span class="ic">▢</span>Budgets</div>
+      <div class="navlink" data-page="goals"><span class="ic">◎</span>Savings jars</div>
+      <div class="navlink" data-page="split"><span class="ic">⇄</span>Split expenses</div>
+      <div class="navlink" data-page="categories"><span class="ic">◈</span>Categories</div>
+      <div class="navlink" data-page="reports"><span class="ic">▤</span>Reports</div>
+      <div class="navlink" data-page="ai"><span class="ic">✦</span>AI Assistant</div>
+      <div class="sb-bottom">
+        <div class="avatar">D</div>
+        <div style="font-size:12.5px;"><div style="font-weight:600;">Dave</div><div style="color:var(--muted);cursor:pointer;" onclick="closeOverlay('app')">Log out</div></div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <div><p class="crumb" id="crumb">Campus Coin / Dashboard</p><h1 id="pageTitle">Dashboard</h1></div>
+        <button class="theme-toggle" id="themeToggle2"><svg id="themeIcon2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="subpage active" id="sub-dashboard">
+        <div class="grid4" style="margin-bottom:14px;">
+          <div class="card glass ring-wrap">
+            <svg class="ring" viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="27"/><circle class="fg" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="34"/></svg>
+            <div><p class="stat-label">Health score</p><p class="stat-val">82</p></div>
+          </div>
+          <div class="card glass"><p class="stat-label">Safe to spend today</p><p class="stat-val">$18.40</p></div>
+          <div class="card glass"><p class="stat-label">Income (month)</p><p class="stat-val" style="color:var(--good);">$400.00</p></div>
+          <div class="card glass"><p class="stat-label">Spent (month)</p><p class="stat-val" style="color:var(--bad);">$257.50</p></div>
+        </div>
+        <div class="grid2">
+          <div class="card glass">
+            <p class="section-h">Budget vs actual</p>
+            <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;"><span>Food</span><span style="color:var(--muted);">$78 / $100</span></div><div class="track"><div class="fill" style="width:78%;background:var(--warn);"></div></div></div>
+            <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;"><span>Transport</span><span style="color:var(--muted);">$22 / $50</span></div><div class="track"><div class="fill" style="width:44%;background:var(--good);"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;"><span>Subscriptions</span><span style="color:var(--muted);">$35 / $30</span></div><div class="track"><div class="fill" style="width:100%;background:var(--bad);"></div></div></div>
+          </div>
+          <div class="card glass">
+            <p class="section-h">Saving tips<span class="tag-btn">Dismiss</span></p>
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 16px;">Food delivery is up 40% this month. Try capping it at 2 orders a week.</p>
+            <p class="section-h" style="margin-bottom:10px;">Quick add</p>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-solid" style="flex:1;padding:9px;">+ Expense</button>
+              <button class="btn-glass glass" style="flex:1;padding:9px;">+ Income</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS -->
+      <div class="subpage" id="sub-transactions">
+        <div class="grid2" style="grid-template-columns:2fr 1fr;align-items:start;">
+          <div class="card glass">
+            <p class="section-h">Recent transactions<span class="tag-btn" onclick="alert('CSV import would open here')">Import CSV</span></p>
+            <table>
+              <tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th style="text-align:right;">Amount</th></tr>
+              <tr><td>Sep 26</td><td>Campus Cafe</td><td>Food</td><td><span class="pill-tag expense">Expense</span></td><td style="text-align:right;">$6.50</td></tr>
+              <tr><td>Sep 25</td><td>Monthly allowance</td><td>Allowance</td><td><span class="pill-tag income">Income</span></td><td style="text-align:right;">$400.00</td></tr>
+              <tr><td>Sep 24</td><td>Bus fare</td><td>Transport</td><td><span class="pill-tag expense">Expense</span></td><td style="text-align:right;">$3.20</td></tr>
+              <tr><td>Sep 22</td><td>Netflix</td><td>Subscriptions</td><td><span class="pill-tag expense">Expense</span></td><td style="text-align:right;">$15.00</td></tr>
+            </table>
+          </div>
+          <div class="card glass">
+            <p class="section-h">Add transaction</p>
+            <div class="field"><label>Description</label><input type="text" id="txDesc" placeholder="e.g. Campus Cafe" oninput="suggestCategory()"></div>
+            <div id="aiSuggest" style="display:none;" class="ai-chip">✦ Suggested: <b id="aiSuggestCat" style="margin-left:3px;"></b></div>
+            <div class="field" style="margin-top:14px;"><label>Amount</label><input type="text" placeholder="$0.00"></div>
+            <div class="field"><label>Category</label><select><option>Food</option><option>Transport</option><option>Academics</option></select></div>
+            <label style="display:flex;align-items:center;gap:7px;margin-bottom:16px;font-size:12.5px;color:var(--muted);"><input type="checkbox" style="width:auto;"> Recurring monthly</label>
+            <button class="btn-solid" style="width:100%;">Save transaction</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUDGETS -->
+      <div class="subpage" id="sub-budgets">
+        <div class="grid3">
+          <div class="card glass"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-weight:600;font-size:13.5px;">Food</span><span style="font-size:12px;color:var(--muted);">$78 / $100</span></div><div class="track"><div class="fill" style="width:78%;background:var(--warn);"></div></div></div>
+          <div class="card glass"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-weight:600;font-size:13.5px;">Transport</span><span style="font-size:12px;color:var(--muted);">$22 / $50</span></div><div class="track"><div class="fill" style="width:44%;background:var(--good);"></div></div></div>
+          <div class="card glass"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-weight:600;font-size:13.5px;">Subscriptions</span><span style="font-size:12px;color:var(--muted);">$35 / $30</span></div><div class="track"><div class="fill" style="width:100%;background:var(--bad);"></div></div></div>
+        </div>
+        <div class="card glass" style="margin-top:14px;">
+          <p class="section-h">Set a budget</p>
+          <div class="grid3">
+            <div class="field"><label>Category</label><select><option>Food</option><option>Transport</option><option>Entertainment</option></select></div>
+            <div class="field"><label>Monthly limit</label><input type="text" placeholder="$0.00"></div>
+            <div class="field" style="display:flex;align-items:flex-end;"><button class="btn-solid" style="width:100%;">Save budget</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVINGS JARS -->
+      <div class="subpage" id="sub-goals">
+        <div class="grid3">
+          <div class="card glass"><p class="section-h">Laptop fund</p><p class="stat-val" style="margin-bottom:8px;">$340 <span style="font-size:12px;color:var(--muted);font-weight:400;">/ $900</span></p><div class="track"><div class="fill" style="width:38%;background:var(--accent);"></div></div></div>
+          <div class="card glass"><p class="section-h">Spring trip</p><p class="stat-val" style="margin-bottom:8px;">$120 <span style="font-size:12px;color:var(--muted);font-weight:400;">/ $400</span></p><div class="track"><div class="fill" style="width:30%;background:var(--accent);"></div></div></div>
+          <div class="card glass" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;border-style:dashed;"><span style="color:var(--muted);font-size:13px;">+ New jar</span></div>
+        </div>
+      </div>
+
+      <!-- SPLIT EXPENSES -->
+      <div class="subpage" id="sub-split">
+        <div class="card glass">
+          <p class="section-h">Shared with roommates<span class="tag-btn">+ Split a bill</span></p>
+          <table>
+            <tr><th>What</th><th>Total</th><th>Split</th><th style="text-align:right;">You owe / owed</th></tr>
+            <tr><td>Hostel electricity</td><td>$42.00</td><td>4 ways</td><td style="text-align:right;color:var(--bad);">-$10.50</td></tr>
+            <tr><td>Weekend groceries</td><td>$28.00</td><td>2 ways</td><td style="text-align:right;color:var(--good);">+$14.00</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CATEGORIES -->
+      <div class="subpage" id="sub-categories">
+        <div class="card glass">
+          <p class="section-h">Income categories</p>
+          <div class="chip-row"><span class="cat-chip glass">Allowance</span><span class="cat-chip glass">Part-time Job</span><span class="cat-chip glass">Scholarship</span><span class="cat-chip glass">Gift</span></div>
+          <p class="section-h">Expense categories</p>
+          <div class="chip-row">
+            <span class="cat-chip glass">Food</span><span class="cat-chip glass">Transport</span><span class="cat-chip glass">Hostel/Rent</span><span class="cat-chip glass">Academics</span><span class="cat-chip glass">Subscriptions</span>
+            <span class="cat-chip" style="background:var(--accent);color:var(--cta-fg);">Gym membership <span style="opacity:.7;cursor:pointer;">✕</span></span>
+          </div>
+          <div class="grid3" style="margin-top:6px;">
+            <div class="field"><label>New category name</label><input type="text" placeholder="e.g. Gym membership"></div>
+            <div class="field"><label>Type</label><select><option>Expense</option><option>Income</option></select></div>
+            <div class="field" style="display:flex;align-items:flex-end;"><button class="btn-solid" style="width:100%;">Add category</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="subpage" id="sub-reports">
+        <div class="grid2">
+          <div class="card glass">
+            <p class="section-h">Category breakdown — September</p>
+            <table>
+              <tr><th>Category</th><th style="text-align:right;">Total</th></tr>
+              <tr><td>Food</td><td style="text-align:right;">$142.30</td></tr>
+              <tr><td>Subscriptions</td><td style="text-align:right;">$35.00</td></tr>
+              <tr><td>Academics</td><td style="text-align:right;">$42.00</td></tr>
+              <tr><td>Transport</td><td style="text-align:right;">$22.00</td></tr>
+            </table>
+            <button class="btn-glass glass" style="margin-top:14px;">Export as PDF</button>
+          </div>
+          <div class="card glass">
+            <p class="section-h">Income vs expense — last 6 months</p>
+            <div style="display:flex;align-items:flex-end;gap:10px;height:140px;">
+              <div style="flex:1;background:var(--good);opacity:.55;height:60%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--good);opacity:.55;height:75%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--good);opacity:.55;height:45%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--good);opacity:.55;height:90%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--good);opacity:.55;height:65%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--good);opacity:.55;height:55%;border-radius:4px 4px 0 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI ASSISTANT -->
+      <div class="subpage" id="sub-ai">
+        <div class="grid2">
+          <div class="card glass">
+            <p class="section-h">Ask Campus Coin</p>
+            <div class="msg user">How much did I spend on food this month?</div>
+            <div class="msg ai">You spent $142.30 on food this month — 15% less than last month.</div>
+            <div style="display:flex;gap:8px;margin-top:14px;"><input type="text" placeholder="Ask about your spending…"><button class="btn-solid">Ask</button></div>
+          </div>
+          <div class="card glass">
+            <p class="section-h">Insight history</p>
+            <div style="padding:10px 0;border-bottom:1px solid var(--stroke);"><div style="display:flex;justify-content:space-between;"><b style="font-size:13px;">September</b><span class="tag-btn">Pin</span></div><p style="font-size:12.5px;color:var(--muted);margin:6px 0 0;">Food spending up 40% vs your 3-month average.</p></div>
+            <div style="padding:10px 0;"><div style="display:flex;justify-content:space-between;"><b style="font-size:13px;">August</b><span class="tag-btn">Pin</span></div><p style="font-size:12.5px;color:var(--muted);margin:6px 0 0;">Spending looked steady — no category stood out.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN — hidden route (#admin), own sign-in, not linked anywhere ============ -->
+<div class="view-overlay" id="view-admin-login">
+  <span class="back-link" onclick="exitAdmin()">← Back to site</span>
+  <div class="auth-illustration">
+    <svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="ag1" cx="50%" cy="30%" r="60%"><stop offset="0%" stop-color="#e08076" stop-opacity="0.16"/><stop offset="100%" stop-color="#e08076" stop-opacity="0"/></radialGradient>
+        <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#888" stroke-opacity="0.12" stroke-width="1"/></pattern>
+      </defs>
+      <rect width="1200" height="900" fill="url(#grid)"/>
+      <rect width="1200" height="900" fill="url(#ag1)"/>
+      <circle cx="180" cy="720" r="80" fill="none" stroke="#e08076" stroke-opacity="0.25" stroke-width="2"/>
+      <circle cx="1020" cy="170" r="60" fill="none" stroke="#e08076" stroke-opacity="0.25" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="auth-card glass">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;"><span class="dot"></span>Campus Coin</div>
+      <span class="badge-restricted">Restricted</span>
+    </div>
+    <h2 class="serif" style="font-size:30px;font-weight:400;margin:0 0 6px;">Admin sign in</h2>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 22px;line-height:1.5;">Authorized personnel only. All actions are logged.</p>
+    <div class="field"><label>Administrator email</label><input type="email" id="adminEmail" autocomplete="off" placeholder="admin@campuscoin.app"></div>
+    <div class="field"><label>Password</label><input type="password" id="adminPass" autocomplete="off" placeholder="••••••••••••"></div>
+    <div class="form-err" id="adminErr"></div>
+    <button class="btn-solid" style="width:100%;" onclick="adminLogin()">Sign in</button>
+  </div>
+</div>
+
+<div class="view-overlay" id="view-admin">
+  <div class="shell">
+    <div class="sidebar glass">
+      <div class="sb-brand"><span class="dot"></span>Campus Coin <span style="font-size:10px;color:var(--bad);font-weight:600;letter-spacing:.08em;">ADMIN</span></div>
+      <div class="navlink active" data-apage="overview"><span class="ic">◆</span>Overview</div>
+      <div class="navlink" data-apage="users"><span class="ic">☺</span>Users</div>
+      <div class="navlink" data-apage="cats"><span class="ic">◈</span>Default categories</div>
+      <div class="navlink" data-apage="notes"><span class="ic">✉</span>Announcements &amp; tips</div>
+      <div class="navlink" data-apage="log"><span class="ic">≡</span>Activity log</div>
+      <div class="sb-bottom"><div class="avatar" style="background:var(--bad);">A</div><div style="font-size:12.5px;"><div style="font-weight:600;">Admin</div><div style="color:var(--muted);cursor:pointer;" onclick="adminSignOut()">Sign out</div></div></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div><p class="crumb" id="acrumb">Restricted / Overview</p><h1 id="apageTitle">Overview</h1></div>
+        <button class="theme-toggle" onclick="document.getElementById('themeToggle').click()" aria-label="Toggle theme"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></button>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div class="asub active show" id="asub-overview">
+        <div class="grid4" style="margin-bottom:14px;">
+          <div class="card glass"><p class="stat-label">Total users</p><p class="stat-val">248</p></div>
+          <div class="card glass"><p class="stat-label">Active today</p><p class="stat-val" style="color:var(--good);">63</p></div>
+          <div class="card glass"><p class="stat-label">Transactions logged</p><p class="stat-val">6,104</p></div>
+          <div class="card glass"><p class="stat-label">Disabled accounts</p><p class="stat-val" style="color:var(--bad);" id="statDisabled">1</p></div>
+        </div>
+        <div class="grid2">
+          <div class="card glass">
+            <p class="section-h">Most-used categories</p>
+            <div class="bar-row"><div class="lbl"><span>Food</span><span style="color:var(--muted);">1,842</span></div><div class="track"><div class="fill" style="width:92%;background:var(--accent);"></div></div></div>
+            <div class="bar-row"><div class="lbl"><span>Transport</span><span style="color:var(--muted);">1,120</span></div><div class="track"><div class="fill" style="width:60%;background:var(--accent);"></div></div></div>
+            <div class="bar-row"><div class="lbl"><span>Subscriptions</span><span style="color:var(--muted);">804</span></div><div class="track"><div class="fill" style="width:44%;background:var(--accent);"></div></div></div>
+            <div class="bar-row"><div class="lbl"><span>Academics</span><span style="color:var(--muted);">611</span></div><div class="track"><div class="fill" style="width:33%;background:var(--accent);"></div></div></div>
+          </div>
+          <div class="card glass">
+            <p class="section-h">New signups — last 7 days</p>
+            <div style="display:flex;align-items:flex-end;gap:10px;height:150px;">
+              <div style="flex:1;background:var(--accent);opacity:.55;height:35%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--accent);opacity:.55;height:55%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--accent);opacity:.55;height:42%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--accent);opacity:.55;height:80%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--accent);opacity:.55;height:68%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--accent);opacity:.55;height:92%;border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;background:var(--accent);opacity:.55;height:60%;border-radius:4px 4px 0 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="asub" id="asub-users">
+        <div class="card glass">
+          <p class="section-h">User accounts</p>
+          <div class="search-row"><input type="text" id="userSearch" placeholder="Search by name or email…" oninput="renderUsers()"></div>
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
+            <tbody id="userRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DEFAULT CATEGORIES -->
+      <div class="asub" id="asub-cats">
+        <div class="card glass">
+          <p style="font-size:12.5px;color:var(--muted);margin:0 0 16px;line-height:1.55;">These are copied to every new student's account at registration. Changes only affect accounts created afterwards.</p>
+          <p class="section-h">Income categories</p>
+          <div class="chip-row" id="catIncome"></div>
+          <p class="section-h">Expense categories</p>
+          <div class="chip-row" id="catExpense"></div>
+          <div class="grid3" style="margin-top:6px;">
+            <div class="field"><label>New default category</label><input type="text" id="newCatName" placeholder="e.g. Health &amp; Wellness"></div>
+            <div class="field"><label>Type</label><select id="newCatType"><option value="expense">Expense</option><option value="income">Income</option></select></div>
+            <div class="field" style="display:flex;align-items:flex-end;"><button class="btn-solid" style="width:100%;" onclick="addCat()">Add category</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANNOUNCEMENTS & TIPS -->
+      <div class="asub" id="asub-notes">
+        <div class="grid2" style="grid-template-columns:1fr 1.2fr;align-items:start;">
+          <div class="card glass">
+            <p class="section-h">New announcement / tip template</p>
+            <div class="field"><label>Type</label><select id="noteType"><option>Announcement</option><option>Tip template</option></select></div>
+            <div class="field"><label>Title</label><input type="text" id="noteTitle" placeholder="e.g. Exam-week budgeting tip"></div>
+            <div class="field"><label>Message</label><textarea id="noteBody" placeholder="What should students see?"></textarea></div>
+            <button class="btn-solid" style="width:100%;" onclick="addNote()">Publish</button>
+          </div>
+          <div class="card glass">
+            <p class="section-h">Published</p>
+            <div id="noteList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOG -->
+      <div class="asub" id="asub-log">
+        <div class="card glass">
+          <p class="section-h">Recent admin activity</p>
+          <table>
+            <thead><tr><th>Time</th><th>Action</th></tr></thead>
+            <tbody id="logRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast glass" id="toast"></div>
+
+<script>
+function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+function openAuth(tab){ document.getElementById('view-auth').classList.add('active'); switchAuthTab(tab); }
+function openApp(){ document.getElementById('view-auth').classList.remove('active'); document.getElementById('view-app').classList.add('active'); }
+function closeOverlay(which){ document.getElementById('view-'+which).classList.remove('active'); }
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  document.getElementById('loginForm').style.display = tab==='login' ? 'block':'none';
+  document.getElementById('registerForm').style.display = tab==='register' ? 'block':'none';
+}
+
+// Sidebar nav
+const titles = {dashboard:'Dashboard',transactions:'Transactions',budgets:'Budgets',goals:'Savings jars',split:'Split expenses',categories:'Categories',reports:'Reports',ai:'AI Assistant'};
+document.querySelectorAll('#view-app .navlink[data-page]').forEach(link=>{
+  link.addEventListener('click', ()=>{
+    document.querySelectorAll('#view-app .navlink[data-page]').forEach(l=>l.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('.subpage').forEach(p=>p.classList.remove('active','show'));
+    const next = document.getElementById('sub-'+link.dataset.page);
+    next.classList.add('active');
+    requestAnimationFrame(()=>next.classList.add('show'));
+    document.getElementById('pageTitle').textContent = titles[link.dataset.page];
+    document.getElementById('crumb').textContent = 'Campus Coin / ' + titles[link.dataset.page];
+  });
+});
+document.querySelector('.subpage.active').classList.add('show');
+
+function suggestCategory(){
+  const v = document.getElementById('txDesc').value.toLowerCase();
+  const box = document.getElementById('aiSuggest'), label = document.getElementById('aiSuggestCat');
+  const rules = [[/cafe|coffee|food|lunch|dinner/,'Food'],[/uber|bus|taxi|transport/,'Transport'],[/netflix|spotify|subscription/,'Subscriptions'],[/book|tuition/,'Academics']];
+  const hit = rules.find(r=>r[0].test(v));
+  if(v.length>2 && hit){ box.style.display='inline-flex'; label.textContent=hit[1]; } else { box.style.display='none'; }
+}
+
+// Theme toggle (synced)
+(function(){
+  const root = document.documentElement;
+  const icons = [document.getElementById('themeIcon'), document.getElementById('themeIcon2')];
+  const MOON = '<circle cx="12" cy="12" r="0" /><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/>';
+  const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+  function apply(theme){
+    if(theme==='light'){ root.setAttribute('data-theme','light'); icons.forEach(i=>i&&(i.innerHTML=MOON)); }
+    else { root.setAttribute('data-theme','dark'); icons.forEach(i=>i&&(i.innerHTML=SUN)); }
+  }
+  let saved=null; try{ saved=localStorage.getItem('cc-theme'); }catch(e){}
+  if(!saved) saved = window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+  apply(saved);
+  function toggle(){ const next = root.getAttribute('data-theme')==='light'?'dark':'light'; apply(next); try{localStorage.setItem('cc-theme',next);}catch(e){} }
+  document.getElementById('themeToggle').addEventListener('click', toggle);
+  document.getElementById('themeToggle2').addEventListener('click', toggle);
+})();
+
+const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show');}),{threshold:.2});
+document.querySelectorAll('.fade,.gcard').forEach(el=>io.observe(el));
+
+const aiText = "You spent $142.30 on food this month — 15% less than last month.";
+const aiIO = new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){ aiIO.disconnect(); let i=0; const el=document.getElementById('ai-msg'); const h=setInterval(()=>{i++; el.textContent=aiText.slice(0,i); if(i>=aiText.length) clearInterval(h);},22); } });
+},{threshold:.5});
+aiIO.observe(document.getElementById('ai-msg'));
+
+// Hero headline types itself immediately on load — no waiting for scroll.
+(function(){
+  const line1 = "Know your money.", line2 = "Then all of it.";
+  const el1 = document.getElementById('typeLine1'), el2 = document.getElementById('typeLine2');
+  const cursor = document.createElement('span'); cursor.className='cursor'; cursor.style.height='1em';
+  function typeInto(el, text, speed, onDone){
+    let i=0;
+    el.appendChild(cursor);
+    const h = setInterval(()=>{
+      i++; el.insertBefore(document.createTextNode(text[i-1]), cursor);
+      if(i>=text.length){ clearInterval(h); if(onDone) onDone(); }
+    }, speed);
+  }
+  window.addEventListener('load', ()=>{
+    setTimeout(()=>{
+      typeInto(el1, line1, 42, ()=>{
+        cursor.remove();
+        setTimeout(()=> typeInto(el2, line2, 42, ()=> cursor.remove()), 120);
+      });
+    }, 150);
+  });
+})();
+
+// ===== HIDDEN ADMIN (route: #admin) =====
+// DEMO ONLY: this front-end check is for the prototype. Real enforcement is
+// server-side (POST /api/auth/admin/login + JWT + requireAdmin in the backend).
+// Credentials in client-side JS are visible to anyone who views source.
+const ADMIN_EMAIL = 'admin@campuscoin.app';
+const ADMIN_PASS  = 'CampusAdmin#2026';
+let adminAuthed = false, adminFails = 0, lockedUntil = 0;
+
+function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._h); toast._h=setTimeout(()=>t.classList.remove('show'),2400); }
+function isAdminAuthed(){ try{ return sessionStorage.getItem('cc-admin')==='1'; }catch(e){ return adminAuthed; } }
+
+function checkAdminRoute(){
+  const h = location.hash.toLowerCase().replace('#/','#').replace(/\/$/,'');
+  const on = h === '#admin', authed = isAdminAuthed();
+  document.getElementById('view-admin-login').classList.toggle('active', on && !authed);
+  document.getElementById('view-admin').classList.toggle('active', on && authed);
+}
+function exitAdmin(){ history.replaceState(null,'',location.pathname+location.search); checkAdminRoute(); }
+function adminSignOut(){
+  logAct('Admin signed out');
+  try{ sessionStorage.removeItem('cc-admin'); }catch(e){}
+  adminAuthed = false; exitAdmin();
+}
+function adminLogin(){
+  const err = document.getElementById('adminErr'), now = Date.now();
+  if(now < lockedUntil){ err.textContent = 'Too many attempts. Try again in ' + Math.ceil((lockedUntil-now)/1000) + 's.'; return; }
+  const e = document.getElementById('adminEmail').value.trim().toLowerCase();
+  const p = document.getElementById('adminPass').value;
+  if(e === ADMIN_EMAIL && p === ADMIN_PASS){
+    adminFails = 0; err.textContent = ''; adminAuthed = true;
+    try{ sessionStorage.setItem('cc-admin','1'); }catch(x){}
+    document.getElementById('adminPass').value = '';
+    logAct('Admin signed in'); checkAdminRoute();
+  } else {
+    adminFails++;
+    if(adminFails >= 5){ lockedUntil = now + 30000; adminFails = 0; err.textContent = 'Too many attempts. Locked for 30 seconds.'; }
+    else { err.textContent = 'Invalid administrator credentials.'; }
+  }
+}
+['adminEmail','adminPass'].forEach(id=>document.getElementById(id).addEventListener('keydown',ev=>{ if(ev.key==='Enter') adminLogin(); }));
+
+// ----- data (in-memory demo state) -----
+const users = [
+  {name:'Ada Lovelace', email:'ada@campuscoin.app', joined:'Aug 12', active:true},
+  {name:'Sam Reyes', email:'sam@campuscoin.app', joined:'Aug 19', active:true},
+  {name:'Priya Nair', email:'priya@campuscoin.app', joined:'Sep 02', active:false},
+  {name:'Tunde Bello', email:'tunde@campuscoin.app', joined:'Sep 09', active:true},
+  {name:'Mei Chen', email:'mei@campuscoin.app', joined:'Sep 15', active:true},
+  {name:'Lucas Ortiz', email:'lucas@campuscoin.app', joined:'Sep 21', active:true}
+];
+const cats = {
+  income:['Allowance','Part-time Job','Scholarship','Gift','Other Income'],
+  expense:['Food','Transport','Hostel/Rent','Academics','Subscriptions','Entertainment','Miscellaneous']
+};
+const notes = [
+  {type:'Announcement', title:'Welcome to Campus Coin', body:'Log your first transaction to unlock your health score and saving tips.'},
+  {type:'Tip template', title:'Exam-week budgeting', body:'Set a food budget before exams start — late-night orders add up fast.'}
+];
+const activity = [];
+
+function logAct(text){
+  const t = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  activity.unshift({t, text}); renderLog();
+}
+function renderLog(){
+  const el = document.getElementById('logRows');
+  el.innerHTML = activity.length ? activity.map(a=>'<tr><td style="white-space:nowrap;color:var(--muted);">'+esc(a.t)+'</td><td>'+esc(a.text)+'</td></tr>').join('') : '<tr><td colspan="2" style="color:var(--muted);">No activity yet.</td></tr>';
+}
+function renderUsers(){
+  const q = (document.getElementById('userSearch').value||'').toLowerCase();
+  const rows = users.map((u,i)=>({u,i})).filter(({u})=>u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q));
+  document.getElementById('userRows').innerHTML = rows.map(({u,i})=>
+    '<tr><td>'+esc(u.name)+'</td><td>'+esc(u.email)+'</td><td>'+esc(u.joined)+'</td>'+
+    '<td><span class="pill-tag '+(u.active?'income':'expense')+'">'+(u.active?'Active':'Disabled')+'</span></td>'+
+    '<td style="text-align:right;white-space:nowrap;"><button class="tag-btn" onclick="toggleUser('+i+')">'+(u.active?'Disable':'Enable')+'</button> <button class="tag-btn" onclick="resetUser('+i+')">Reset password</button></td></tr>'
+  ).join('') || '<tr><td colspan="5" style="color:var(--muted);">No users match.</td></tr>';
+  document.getElementById('statDisabled').textContent = users.filter(u=>!u.active).length;
+}
+function toggleUser(i){ users[i].active = !users[i].active; logAct((users[i].active?'Enabled ':'Disabled ')+users[i].email); toast(users[i].active?'Account enabled':'Account disabled'); renderUsers(); }
+function resetUser(i){ logAct('Sent password reset to '+users[i].email); toast('Reset link sent to '+users[i].email); }
+
+function renderCats(){
+  ['income','expense'].forEach(type=>{
+    document.getElementById(type==='income'?'catIncome':'catExpense').innerHTML = cats[type].map((c,i)=>
+      '<span class="cat-chip glass">'+esc(c)+' <span style="cursor:pointer;color:var(--muted);" onclick="removeCat(\''+type+'\','+i+')">✕</span></span>').join('');
+  });
+}
+function addCat(){
+  const n = document.getElementById('newCatName'), type = document.getElementById('newCatType').value, name = n.value.trim();
+  if(!name){ toast('Enter a category name'); return; }
+  if(cats[type].some(c=>c.toLowerCase()===name.toLowerCase())){ toast('That category already exists'); return; }
+  cats[type].push(name); n.value=''; logAct('Added default '+type+' category: '+name); renderCats(); toast('Category added');
+}
+function removeCat(type,i){ const name=cats[type][i]; cats[type].splice(i,1); logAct('Removed default '+type+' category: '+name); renderCats(); toast('Category removed'); }
+
+function renderNotes(){
+  document.getElementById('noteList').innerHTML = notes.length ? notes.map((n,i)=>
+    '<div class="note-item"><div><span class="pill-tag '+(n.type==='Announcement'?'income':'expense')+'" style="margin-right:8px;">'+esc(n.type)+'</span><b style="font-size:13px;">'+esc(n.title)+'</b><p>'+esc(n.body)+'</p></div><button class="tag-btn" onclick="removeNote('+i+')">Delete</button></div>'
+  ).join('') : '<p style="color:var(--muted);font-size:13px;margin:0;">Nothing published yet.</p>';
+}
+function addNote(){
+  const type=document.getElementById('noteType').value, t=document.getElementById('noteTitle'), b=document.getElementById('noteBody');
+  if(!t.value.trim() || !b.value.trim()){ toast('Add a title and a message'); return; }
+  notes.unshift({type, title:t.value.trim(), body:b.value.trim()}); logAct('Published '+type.toLowerCase()+': '+t.value.trim());
+  t.value=''; b.value=''; renderNotes(); toast('Published');
+}
+function removeNote(i){ logAct('Deleted '+notes[i].type.toLowerCase()+': '+notes[i].title); notes.splice(i,1); renderNotes(); toast('Deleted'); }
+
+// Admin sidebar nav (scoped so it never touches the student app's pages)
+const atitles = {overview:'Overview',users:'Users',cats:'Default categories',notes:'Announcements & tips',log:'Activity log'};
+document.querySelectorAll('#view-admin .navlink[data-apage]').forEach(link=>{
+  link.addEventListener('click', ()=>{
+    document.querySelectorAll('#view-admin .navlink[data-apage]').forEach(l=>l.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('.asub').forEach(p=>p.classList.remove('active','show'));
+    const next = document.getElementById('asub-'+link.dataset.apage);
+    next.classList.add('active'); requestAnimationFrame(()=>next.classList.add('show'));
+    document.getElementById('apageTitle').textContent = atitles[link.dataset.apage];
+    document.getElementById('acrumb').textContent = 'Restricted / ' + atitles[link.dataset.apage];
+  });
+});
+
+renderUsers(); renderCats(); renderNotes(); renderLog();
+window.addEventListener('hashchange', checkAdminRoute);
+checkAdminRoute();
+</script>
+</body>
+</html>
